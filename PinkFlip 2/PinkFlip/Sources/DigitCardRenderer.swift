@@ -49,6 +49,11 @@ enum DigitCardRenderer {
         context.setFillColor(PinkFlipPalette.card.cgColor)
         context.fillPath()
 
+        // White frosted overlay for acrylic glass effect.
+        context.addPath(path)
+        context.setFillColor(PinkFlipPalette.cardFrostedOverlay.cgColor)
+        context.fillPath()
+
         // Very subtle vertical gradient: a soft highlight near the top,
         // a soft shadow near the bottom, for gentle luxury depth.
         context.saveGState()
@@ -72,17 +77,52 @@ enum DigitCardRenderer {
         }
         context.restoreGState()
 
-        // Center hinge seam: a hairline shadow across the vertical middle
+        // Thin elegant seam: a hairline shadow across the vertical middle
         // of the card, mimicking the physical split of a flip card.
-        let seamHeight: CGFloat = max(1.0, size.height * 0.012)
+        let seamHeight: CGFloat = max(1.0, size.height * 0.005)
         let seamRect = CGRect(x: 0, y: bounds.midY - seamHeight / 2, width: size.width, height: seamHeight)
         context.setFillColor(PinkFlipPalette.seam.cgColor)
         context.fill(seamRect)
 
-        // Glyph. Uses the system's built-in monospaced-digit numeral
-        // style so consecutive digits never shift horizontally.
+        // Rounded capsule hinge tabs (decorative elements flanking the hinge).
+        let tabWidth: CGFloat = size.width * 0.08
+        let tabHeight: CGFloat = size.height * 0.08
+        let tabRadius: CGFloat = tabHeight / 2.0
+        let tabY = bounds.midY - tabHeight / 2.0
+
+        // Left tab
+        let leftTabRect = CGRect(x: bounds.minX + size.width * 0.08, y: tabY, width: tabWidth, height: tabHeight)
+        let leftTabPath = CGPath(roundedRect: leftTabRect, cornerWidth: tabRadius, cornerHeight: tabRadius, transform: nil)
+        context.addPath(leftTabPath)
+        context.setFillColor(PinkFlipPalette.hingeCapsuleColor.cgColor)
+        context.fillPath()
+
+        // Right tab
+        let rightTabRect = CGRect(x: bounds.maxX - size.width * 0.08 - tabWidth, y: tabY, width: tabWidth, height: tabHeight)
+        let rightTabPath = CGPath(roundedRect: rightTabRect, cornerWidth: tabRadius, cornerHeight: tabRadius, transform: nil)
+        context.addPath(rightTabPath)
+        context.setFillColor(PinkFlipPalette.hingeCapsuleColor.cgColor)
+        context.fillPath()
+
+        // Thick pink border stroke to frame the card.
+        let borderWidth: CGFloat = size.height * 0.055
+        let borderPath = CGPath(roundedRect: bounds.insetBy(dx: borderWidth / 2, dy: borderWidth / 2),
+                                cornerWidth: max(0, cornerRadius - borderWidth / 2),
+                                cornerHeight: max(0, cornerRadius - borderWidth / 2),
+                                transform: nil)
+        context.addPath(borderPath)
+        context.setStrokeColor(PinkFlipPalette.card.cgColor)
+        context.setLineWidth(borderWidth)
+        context.strokePath()
+
+        // Glyph. Uses SF Pro Rounded system font with pink color.
         let fontSize = size.height * 0.72
-        let font = NSFont.monospacedDigitSystemFont(ofSize: fontSize, weight: .semibold)
+        let font: NSFont
+        if #available(macOS 11.0, *) {
+            font = NSFont.systemFont(ofSize: fontSize, weight: .medium).withDesign(.rounded) ?? NSFont.systemFont(ofSize: fontSize, weight: .medium)
+        } else {
+            font = NSFont.systemFont(ofSize: fontSize, weight: .medium)
+        }
 
         let paragraph = NSMutableParagraphStyle()
         paragraph.alignment = .center
