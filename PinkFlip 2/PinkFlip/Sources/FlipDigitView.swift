@@ -49,7 +49,7 @@ final class FlipDigitView: NSView {
 
     // MARK: Init
 
-    init(glyph: Character, cornerRadius: CGFloat = 14) {
+    init(glyph: Character, cornerRadius: CGFloat = 40) {
         self.currentGlyph = glyph
         self.cornerRadius = cornerRadius
         super.init(frame: .zero)
@@ -67,12 +67,11 @@ final class FlipDigitView: NSView {
         layer!.addSublayer(containerLayer)
         containerLayer.masksToBounds = false
 
-        // Drop shadow for the whole card, drawn on the container so it
-        // is not clipped by the half-layer masks. Kept soft and subtle.
+        // Drop shadow for the whole card, extremely soft and subtle.
         containerLayer.shadowColor = PinkFlipPalette.cardDropShadow.cgColor
-        containerLayer.shadowOpacity = 1.0
-        containerLayer.shadowRadius = 10
-        containerLayer.shadowOffset = CGSize(width: 0, height: -4)
+        containerLayer.shadowOpacity = 0.6
+        containerLayer.shadowRadius = 18
+        containerLayer.shadowOffset = CGSize(width: 0, height: -2)
 
         for (layer, corners) in [
             (topBackLayer, topCorners),
