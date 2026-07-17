@@ -21,7 +21,8 @@ final class ClockView: NSView {
     private let hourOnes = FlipDigitView(glyph: "0")
     private let minuteTens = FlipDigitView(glyph: "0")
     private let minuteOnes = FlipDigitView(glyph: "0")
-    private let colonLabel = CATextLayer()
+    private let colonDotTop = CALayer()
+    private let colonDotBottom = CALayer()
     private let ampmLabel = CATextLayer()
 
     private let timeProvider = TimeProvider()
@@ -32,10 +33,10 @@ final class ClockView: NSView {
     private let cardAspect: CGFloat = 0.74
 
     /// Spacing between cards, expressed as a fraction of card width.
-    private let cardSpacingFraction: CGFloat = 0.16
+    private let cardSpacingFraction: CGFloat = 0.12
 
     /// Spacing given to the colon, as a fraction of card width.
-    private let colonWidthFraction: CGFloat = 0.42
+    private let colonWidthFraction: CGFloat = 0.30
 
     // MARK: Init
 
@@ -57,11 +58,14 @@ final class ClockView: NSView {
             addSubview(digitView)
         }
 
-        colonLabel.string = ":"
-        colonLabel.alignmentMode = .center
-        colonLabel.foregroundColor = PinkFlipPalette.card.cgColor
-        colonLabel.contentsScale = window?.backingScaleFactor ?? NSScreen.main?.backingScaleFactor ?? 2.0
-        layer!.addSublayer(colonLabel)
+        // Colon rendered as two rounded dots instead of text.
+        colonDotTop.backgroundColor = PinkFlipPalette.card.cgColor
+        colonDotTop.cornerRadius = 0  // Set in layout based on size
+        layer!.addSublayer(colonDotTop)
+
+        colonDotBottom.backgroundColor = PinkFlipPalette.card.cgColor
+        colonDotBottom.cornerRadius = 0  // Set in layout based on size
+        layer!.addSublayer(colonDotBottom)
 
         ampmLabel.string = ""
         ampmLabel.alignmentMode = .center
@@ -124,8 +128,8 @@ final class ClockView: NSView {
         let spacingUnits: CGFloat = 3 // gaps: H-H, H:M, M-M  (colon counted separately)
         let totalWidthUnits: CGFloat = 4 + colonWidthFraction + spacingUnits * cardSpacingFraction
 
-        let widthConstrainedCardWidth = bounds.width * 0.86 / totalWidthUnits
-        let heightConstrainedCardWidth = (bounds.height * 0.62) * cardAspect
+        let widthConstrainedCardWidth = bounds.width * 0.82 / totalWidthUnits
+        let heightConstrainedCardWidth = (bounds.height * 0.60) * cardAspect
 
         let cardWidth = max(20, min(widthConstrainedCardWidth, heightConstrainedCardWidth))
         let cardHeight = cardWidth / cardAspect
@@ -145,11 +149,20 @@ final class ClockView: NSView {
         x += cardWidth
 
         let colonRect = CGRect(x: x, y: centerY - cardHeight / 2, width: colonWidth, height: cardHeight)
-        colonLabel.frame = colonRect
-        colonLabel.fontSize = cardHeight * 0.62
-        colonLabel.font = NSFont.systemFont(ofSize: colonLabel.fontSize, weight: .semibold)
-        colonLabel.foregroundColor = PinkFlipPalette.card.cgColor
-        colonLabel.contentsScale = window?.backingScaleFactor ?? NSScreen.main?.backingScaleFactor ?? 2.0
+        
+        // Position colon dots (rounded circles) above and below the center.
+        let dotDiameter = cardWidth * 0.12
+        let dotRadius = dotDiameter / 2.0
+        let dotSpacingFromCenter = cardHeight * 0.15
+        
+        colonDotTop.bounds = CGRect(x: 0, y: 0, width: dotDiameter, height: dotDiameter)
+        colonDotTop.position = CGPoint(x: colonRect.midX, y: centerY - dotSpacingFromCenter)
+        colonDotTop.cornerRadius = dotRadius
+        
+        colonDotBottom.bounds = CGRect(x: 0, y: 0, width: dotDiameter, height: dotDiameter)
+        colonDotBottom.position = CGPoint(x: colonRect.midX, y: centerY + dotSpacingFromCenter)
+        colonDotBottom.cornerRadius = dotRadius
+
         x += colonWidth
 
         minuteTens.frame = CGRect(x: x, y: centerY - cardHeight / 2, width: cardWidth, height: cardHeight)
