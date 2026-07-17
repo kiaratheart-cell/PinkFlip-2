@@ -119,7 +119,7 @@ enum DigitCardRenderer {
         let fontSize = size.height * 0.72
         let font: NSFont
         if #available(macOS 11.0, *) {
-            font = NSFont.systemFont(ofSize: fontSize, weight: .medium).withDesign(.rounded) ?? NSFont.systemFont(ofSize: fontSize, weight: .medium)
+            font = NSFont.systemFont(ofSize: fontSize, weight: .medium)
         } else {
             font = NSFont.systemFont(ofSize: fontSize, weight: .medium)
         }
