@@ -41,7 +41,7 @@ final class PinkFlipView: ScreenSaverView {
         animationTimeInterval = 1.0 / 30.0
 
         wantsLayer = true
-        layer?.backgroundColor = PinkFlipPalette.background.cgColor
+        layer?.backgroundColor = static let backgroundBase = NSColor(hex: "F5C7D9").backgroundBase.cgColor
 
         addSubview(clockView)
 
